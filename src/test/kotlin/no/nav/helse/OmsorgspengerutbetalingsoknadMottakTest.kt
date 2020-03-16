@@ -120,8 +120,8 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
     @Test
     fun `Gyldig søknad blir lagt til prosessering`() {
-        gyldigSoknadBlirLagtTilProsessering(Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-api"))
-        gyldigSoknadBlirLagtTilProsessering(Azure.V2_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-api"))
+        gyldigSoknadBlirLagtTilProsessering(Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak"))
+        gyldigSoknadBlirLagtTilProsessering(Azure.V2_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak"))
     }
 
     private fun gyldigSoknadBlirLagtTilProsessering(accessToken: String) {
