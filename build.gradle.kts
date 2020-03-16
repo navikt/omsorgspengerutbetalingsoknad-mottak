@@ -8,7 +8,6 @@ val kafkaVersion = "2.3.0" // Alligned med version fra kafka-embedded-env
 
 val mainClass = "no.nav.helse.OmsorgspengerutbetalingsoknadMottakKt"
 
-
 plugins {
     kotlin("jvm") version "1.3.41"
     id("com.github.johnrengelman.shadow") version "5.1.0"
