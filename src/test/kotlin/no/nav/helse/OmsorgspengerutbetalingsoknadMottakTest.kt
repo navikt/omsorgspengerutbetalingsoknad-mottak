@@ -221,8 +221,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
             "søker": {
                 "aktørId": "ABC"
             },
-            legeerklæring: [],
-            samværsavtale: []
+            vedlegg: []
         }
         """.trimIndent()
 
@@ -262,7 +261,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         val outgoingFromIncoming = SoknadV1Incoming(incomingJsonString)
             .medSoknadId(outgoing.soknadId)
             .medLegeerklæringUrls(outgoing.legeerklæringUrls)
-            .medSamværsavtaleUrls(outgoing.samværrsavtaleUrls)
             .somOutgoing()
 
         JSONAssert.assertEquals(outgoingFromIncoming.jsonObject.toString(), outgoing.jsonObject.toString(), true)
@@ -318,12 +316,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                 "fødselsnummer": "$fodselsnummerSoker",
                 "aktørId": "123456"
             },
-            legeerklæring: [{
-                "content": "${Base64.encodeBase64String("iPhone_6.jpg".fromResources().readBytes())}",
-                "contentType": "image/jpeg",
-                "title": "Et fint bilde"
-            }],
-            samværsavtale: [{
+            vedlegg: [{
                 "content": "${Base64.encodeBase64String("iPhone_6.jpg".fromResources().readBytes())}",
                 "contentType": "image/jpeg",
                 "title": "Et fint bilde"

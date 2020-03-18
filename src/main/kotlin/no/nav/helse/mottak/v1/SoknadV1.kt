@@ -7,8 +7,7 @@ import org.json.JSONObject
 import java.net.URI
 
 private object JsonKeys {
-    internal const val legeerklæring = "legeerklæring"
-    internal const val samværsavtale = "samværsavtale"
+    internal const val vedlegg = "vedlegg"
     internal const val søker = "søker"
     internal const val aktørId = "aktørId"
     internal const val søknadId = "søknadId"
@@ -21,11 +20,8 @@ private object JsonKeys {
 internal class SoknadV1Incoming(json: String) {
     private val jsonObject = JSONObject(json)
     internal val legeerklæring: List<Vedlegg>
-    internal val samværsavtale: List<Vedlegg>
 
-    private fun hentLegeerklæring(): List<Vedlegg> = vedleggsFilerTilJson(JsonKeys.legeerklæring).toList()
-
-    private fun hentSamværsavtale(): List<Vedlegg> = vedleggsFilerTilJson(JsonKeys.samværsavtale).toList()
+    private fun hentLegeerklæring(): List<Vedlegg> = vedleggsFilerTilJson(JsonKeys.vedlegg).toList()
 
     private fun vedleggsFilerTilJson(jsonKey: String): MutableList<Vedlegg> {
         val vedleggsFiler: MutableList<Vedlegg> = mutableListOf()
@@ -44,20 +40,13 @@ internal class SoknadV1Incoming(json: String) {
 
     init {
         legeerklæring = hentLegeerklæring()
-        samværsavtale = hentSamværsavtale()
-        jsonObject.remove(JsonKeys.legeerklæring)
-        jsonObject.remove(JsonKeys.samværsavtale)
+        jsonObject.remove(JsonKeys.vedlegg)
     }
 
     internal val søkerAktørId = AktoerId(jsonObject.getJSONObject(JsonKeys.søker).getString(JsonKeys.aktørId))
 
     internal fun medLegeerklæringUrls(vedleggUrls: List<URI>): SoknadV1Incoming {
-        jsonObject.put(JsonKeys.legeerklæring, vedleggUrls)
-        return this
-    }
-
-    internal fun medSamværsavtaleUrls(vedleggUrls: List<URI>): SoknadV1Incoming {
-        jsonObject.put(JsonKeys.samværsavtale, vedleggUrls)
+        jsonObject.put(JsonKeys.vedlegg, vedleggUrls)
         return this
     }
 
@@ -72,8 +61,7 @@ internal class SoknadV1Incoming(json: String) {
 
 internal class SoknadV1Outgoing(internal val jsonObject: JSONObject) {
     internal val soknadId = SoknadId(jsonObject.getString(JsonKeys.søknadId))
-    internal val legeerklæringUrls = hentVedleggUrls(JsonKeys.legeerklæring)
-    internal val samværrsavtaleUrls = hentVedleggUrls(JsonKeys.samværsavtale)
+    internal val legeerklæringUrls = hentVedleggUrls(JsonKeys.vedlegg)
 
     private fun hentVedleggUrls(jsonkey: String): List<URI> {
         val vedleggUrls = mutableListOf<URI>()

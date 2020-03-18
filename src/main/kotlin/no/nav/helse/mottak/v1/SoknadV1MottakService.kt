@@ -32,21 +32,8 @@ internal class SoknadV1MottakService(
             correlationId = correlationId
         )
 
-        val samværsavtaleUrls = when {
-            soknad.samværsavtale.isNotEmpty() -> {
-                logger.info("Lagrer samværsvtaler")
-                lagreVedleg(
-                    aktoerId = soknad.søkerAktørId,
-                    vedlegg = soknad.samværsavtale,
-                    correlationId = correlationId
-                )
-            }
-            else -> listOf()
-        }
-
         val outgoing = soknad
             .medLegeerklæringUrls(legeerklæringUrls)
-            .medSamværsavtaleUrls(samværsavtaleUrls)
             .medSoknadId(soknadId)
             .somOutgoing()
 
