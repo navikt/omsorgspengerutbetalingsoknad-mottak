@@ -25,7 +25,7 @@ internal class SoknadV1MottakService(
     ): SoknadId {
         val correlationId = CorrelationId(metadata.correlationId)
 
-        logger.info("Lagrer legeerklæringer")
+        logger.info("Lagrer vedlegg")
         val legeerklæringUrls = lagreVedleg(
             aktoerId = soknad.søkerAktørId,
             vedlegg = soknad.legeerklæring,
