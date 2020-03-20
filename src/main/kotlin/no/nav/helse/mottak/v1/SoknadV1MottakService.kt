@@ -28,7 +28,7 @@ internal class SoknadV1MottakService(
         logger.info("Lagrer vedlegg")
         val legeerklæringUrls = lagreVedleg(
             aktoerId = soknad.søkerAktørId,
-            vedlegg = soknad.legeerklæring,
+            vedlegg = soknad.vedlegg,
             correlationId = correlationId
         )
 

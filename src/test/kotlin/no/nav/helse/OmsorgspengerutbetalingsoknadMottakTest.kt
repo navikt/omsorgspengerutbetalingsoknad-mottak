@@ -237,11 +237,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                     "instance": "about:blank",
                     "invalid_parameters": [{
                         "type": "entity",
-                        "name": "legeerklæring",
-                        "reason": "Det må sendes minst en legeerklæringsfil.",
-                        "invalid_value": []
-                    }, {
-                        "type": "entity",
                         "name": "søker.aktørId",
                         "reason": "Ikke gyldig Aktør ID.",
                         "invalid_value": "ABC"
@@ -260,7 +255,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
         val outgoingFromIncoming = SoknadV1Incoming(incomingJsonString)
             .medSoknadId(outgoing.soknadId)
-            .medLegeerklæringUrls(outgoing.legeerklæringUrls)
+            .medLegeerklæringUrls(outgoing.vedlegg)
             .somOutgoing()
 
         JSONAssert.assertEquals(outgoingFromIncoming.jsonObject.toString(), outgoing.jsonObject.toString(), true)
