@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "1.2.6.ad301b5"
+val dusseldorfKtorVersion = "1.3.2.4e29fb7"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kafkaEmbeddedEnvVersion = "2.2.0"
 val kafkaVersion = "2.3.0" // Alligned med version fra kafka-embedded-env
@@ -9,12 +9,12 @@ val kafkaVersion = "2.3.0" // Alligned med version fra kafka-embedded-env
 val mainClass = "no.nav.helse.OmsorgspengerutbetalingsoknadMottakKt"
 
 plugins {
-    kotlin("jvm") version "1.3.41"
-    id("com.github.johnrengelman.shadow") version "5.1.0"
+    kotlin("jvm") version "1.3.70"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/master/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/4e29fb7f5f69ab1b8d998fc1f674085e2e01e7ad/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 repositories {
@@ -82,5 +82,5 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "5.6"
+    gradleVersion = "5.6.2"
 }
