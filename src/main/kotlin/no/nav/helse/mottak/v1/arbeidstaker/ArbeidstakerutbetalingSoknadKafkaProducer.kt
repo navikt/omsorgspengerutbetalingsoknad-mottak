@@ -24,7 +24,7 @@ internal class ArbeidstakerutbetalingSoknadKafkaProducer(
 
         private val TOPIC_USE = TopicUse(
             name = Topics.ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT,
-            valueSerializer = ArbeidstakerutbetalingSoknadOutgoingSerialier()
+            valueSerializer = ArbeidstakerutbetalingSoknadOutgoingSerializer()
         )
         private val logger = LoggerFactory.getLogger(SoknadV1KafkaProducer::class.java)
     }
@@ -69,7 +69,7 @@ internal class ArbeidstakerutbetalingSoknadKafkaProducer(
     }
 }
 
-private class ArbeidstakerutbetalingSoknadOutgoingSerialier : Serializer<TopicEntry<JSONObject>> {
+private class ArbeidstakerutbetalingSoknadOutgoingSerializer : Serializer<TopicEntry<JSONObject>> {
     override fun serialize(topic: String, data: TopicEntry<JSONObject>): ByteArray {
         val metadata = JSONObject()
             .put("correlationId", data.metadata.correlationId)
