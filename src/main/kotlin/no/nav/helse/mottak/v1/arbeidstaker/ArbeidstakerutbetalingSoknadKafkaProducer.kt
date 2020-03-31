@@ -70,7 +70,7 @@ internal class ArbeidstakerutbetalingSoknadKafkaProducer(
 }
 
 private class ArbeidstakerutbetalingSoknadOutgoingSerialier : Serializer<TopicEntry<JSONObject>> {
-    override fun serialize(topic: String, data: TopicEntry<JSONObject>) : ByteArray {
+    override fun serialize(topic: String, data: TopicEntry<JSONObject>): ByteArray {
         val metadata = JSONObject()
             .put("correlationId", data.metadata.correlationId)
             .put("requestId", data.metadata.requestId)
@@ -82,6 +82,7 @@ private class ArbeidstakerutbetalingSoknadOutgoingSerialier : Serializer<TopicEn
             .toString()
             .toByteArray()
     }
+
     override fun configure(configs: MutableMap<String, *>?, isKey: Boolean) {}
     override fun close() {}
 }
