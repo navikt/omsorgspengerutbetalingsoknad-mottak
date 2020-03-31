@@ -25,7 +25,8 @@ object KafkaWrapper {
             withSchemaRegistry = false,
             withSecurity = true,
             topicNames= listOf(
-                Topics.MOTTATT,
+                Topics.SELVSTENDIG_NÆRINGSDRIVENDE_SØKNAD_MOTTATT,
+                Topics.ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT,
                 Topics.DITT_NAV_BESKJED
             )
         )
@@ -33,35 +34,39 @@ object KafkaWrapper {
     }
 }
 
-private fun KafkaEnvironment.testConsumerProperties() : MutableMap<String, Any>?  {
+private fun KafkaEnvironment.testConsumerProperties(clientId: String): MutableMap<String, Any>?  {
     return HashMap<String, Any>().apply {
         put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
         put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
         put(SaslConfigs.SASL_MECHANISM, "PLAIN")
         put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";")
-        put(ConsumerConfig.GROUP_ID_CONFIG, "OmsorgspengerutbetalingsoknadProsesseringTest")
+        put(ConsumerConfig.GROUP_ID_CONFIG, clientId)
     }
 }
 
 internal fun KafkaEnvironment.testConsumer() : KafkaConsumer<String, TopicEntry<JSONObject>> {
     val consumer = KafkaConsumer<String, TopicEntry<JSONObject>>(
-        testConsumerProperties(),
+        testConsumerProperties("OmsorgspengerutbetalingsoknadProsesseringTest"),
         StringDeserializer(),
         SoknadV1OutgoingDeserialiser()
     )
-    consumer.subscribe(listOf(Topics.MOTTATT))
+    consumer.subscribe(listOf(
+        Topics.SELVSTENDIG_NÆRINGSDRIVENDE_SØKNAD_MOTTATT,
+        Topics.ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT
+    ))
     return consumer
 }
 
 internal fun KafkaConsumer<String, TopicEntry<JSONObject>>.hentSoknad(
     soknadId: String,
-    maxWaitInSeconds: Long = 20
+    maxWaitInSeconds: Long = 20,
+    topic: String
 ) : TopicEntry<JSONObject> {
     val end = System.currentTimeMillis() + Duration.ofSeconds(maxWaitInSeconds).toMillis()
     while (System.currentTimeMillis() < end) {
         seekToBeginning(assignment())
         val entries = poll(Duration.ofSeconds(1))
-            .records(Topics.MOTTATT)
+            .records(topic)
             .filter { it.key().equals(soknadId) }
 
         if (entries.isNotEmpty()) {

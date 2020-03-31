@@ -1,4 +1,4 @@
-package no.nav.helse.mottak.v1
+package no.nav.helse.mottak.v1.selvstendignaringsrivende
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -16,7 +16,6 @@ import no.nav.helse.SoknadId
 import no.nav.helse.getSoknadId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import validate
 
 private val logger: Logger = LoggerFactory.getLogger("no.nav.SoknadV1Api")
 
@@ -44,24 +43,23 @@ internal fun Route.SoknadV1Api(
     }
 }
 
-private suspend fun ApplicationCall.soknad() : SoknadV1Incoming {
+private suspend fun ApplicationCall.soknad(): SoknadV1Incoming {
     val json = receiveStream().use { String(it.readAllBytes(), Charsets.UTF_8) }
     val incoming = SoknadV1Incoming(json)
     incoming.validate()
     return incoming
 }
 
-private fun ApplicationCall.metadata() = Metadata(
+fun ApplicationCall.metadata() = Metadata(
     version = 1,
     correlationId = request.getCorrelationId(),
     requestId = response.getRequestId()
 )
 
-
-private fun ApplicationRequest.getCorrelationId(): String {
+fun ApplicationRequest.getCorrelationId(): String {
     return header(HttpHeaders.XCorrelationId) ?: throw IllegalStateException("Correlation Id ikke satt")
 }
 
-private fun ApplicationResponse.getRequestId(): String {
+fun ApplicationResponse.getRequestId(): String {
     return headers[HttpHeaders.XRequestId] ?: throw IllegalStateException("Request Id ikke satt")
 }

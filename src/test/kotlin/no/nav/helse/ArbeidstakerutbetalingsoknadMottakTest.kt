@@ -1,6 +1,5 @@
 package no.nav.helse
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.ApplicationConfig
@@ -14,14 +13,11 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.common.KafkaEnvironment
 import no.nav.helse.RequestUtils.requestAndAssert
-import no.nav.helse.dusseldorf.ktor.core.fromResources
-import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.helse.kafka.Topics
-import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1Incoming
-import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1Outgoing
-import org.apache.commons.codec.binary.Base64
+import no.nav.helse.mottak.v1.arbeidstaker.ArbeidstakerutbetalingsSoknadIncoming
+import no.nav.helse.mottak.v1.arbeidstaker.ArbeidstakerutbetalingsSoknadOutgoing
 import org.json.JSONObject
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -34,11 +30,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @KtorExperimentalAPI
-class OmsorgspengerutbetalingsoknadMottakTest {
+class ArbeidstakerutbetalingsoknadMottakTest {
 
     @KtorExperimentalAPI
     private companion object {
-        private val logger: Logger = LoggerFactory.getLogger(OmsorgspengerutbetalingsoknadMottakTest::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(ArbeidstakerutbetalingsoknadMottakTest::class.java)
 
         // Se https://github.com/navikt/dusseldorf-ktor#f%C3%B8dselsnummer
         private val gyldigFodselsnummerA = "02119970078"
@@ -59,7 +55,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
         private val kafkaEnvironment = KafkaWrapper.bootstrap()
         private val kafkaTestConsumer = kafkaEnvironment.testConsumer()
-        private val objectMapper = jacksonObjectMapper().dusseldorfConfigured()
 
         private val authorizedAccessToken = Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak")
         private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(clientId = "ikke-authorized-client", audience = "omsorgspengerutbetalingsoknad-mottak")
@@ -135,7 +130,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
             expectedResponse = null,
             expectedCode = HttpStatusCode.Accepted,
             accessToken = accessToken,
-            path = "/v1/soknad",
+            path = "/v1/arbeidstaker/soknad",
             logger = logger,
             kafkaEngine = engine
         )
@@ -155,12 +150,12 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
         val soknadId = requestAndAssert(
             soknad = soknad,
-            path = "/v1/soknad",
+            expectedResponse = null,
+            expectedCode = HttpStatusCode.Accepted,
+            path = "/v1/arbeidstaker/soknad",
             accessToken = authorizedAccessToken,
             logger = logger,
-            kafkaEngine = engine,
-            expectedCode = HttpStatusCode.Accepted,
-            expectedResponse = null
+            kafkaEngine = engine
         )
 
         val sendtTilProsessering  = hentSoknadSendtTilProsessering(soknadId)
@@ -189,7 +184,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
             """.trimIndent(),
             expectedCode = HttpStatusCode.Forbidden,
             accessToken = unAauthorizedAccessToken,
-            path = "/v1/soknad",
+            path = "/v1/arbeidstaker/soknad",
             logger = logger,
             kafkaEngine = engine
         )
@@ -203,11 +198,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
         requestAndAssert(
             soknad = soknad,
-            path = "/v1/soknad",
-            accessToken = authorizedAccessToken,
-            logger = logger,
-            kafkaEngine = engine,
-            expectedCode = HttpStatusCode.BadRequest,
             expectedResponse = """
                 {
                     "type": "/problem-details/invalid-request-parameters",
@@ -225,7 +215,12 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                     ]
                 }
             """.trimIndent(),
-            leggTilCorrelationId = false
+            expectedCode = HttpStatusCode.BadRequest,
+            leggTilCorrelationId = false,
+            path = "/v1/arbeidstaker/soknad",
+            accessToken = authorizedAccessToken,
+            logger = logger,
+            kafkaEngine = engine
         )
     }
 
@@ -234,8 +229,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         val soknad = """
         {
             "søker": {
-                "aktørId": "ABC",
-                "fødselsnummer": "02119970078"
+                "aktørId": "ABC"
             },
             vedlegg: []
         }
@@ -243,11 +237,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
         requestAndAssert(
             soknad = soknad,
-            path = "/v1/soknad",
-            accessToken = authorizedAccessToken,
-            logger = logger,
-            kafkaEngine = engine,
-            expectedCode = HttpStatusCode.BadRequest,
             expectedResponse = """
                 {
                     "type": "/problem-details/invalid-request-parameters",
@@ -262,7 +251,12 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                         "invalid_value": "ABC"
                     }]
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            expectedCode = HttpStatusCode.BadRequest,
+            path = "/v1/arbeidstaker/soknad",
+            accessToken = authorizedAccessToken,
+            logger = logger,
+            kafkaEngine = engine
         )
     }
 
@@ -271,14 +265,10 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         incomingJsonString: String,
         outgoingJsonObject: JSONObject
     ) {
-        val outgoing =
-            SoknadV1Outgoing(outgoingJsonObject)
+        val outgoing = ArbeidstakerutbetalingsSoknadOutgoing(outgoingJsonObject)
 
-        val outgoingFromIncoming = SoknadV1Incoming(
-            incomingJsonString
-        )
+        val outgoingFromIncoming = ArbeidstakerutbetalingsSoknadIncoming(incomingJsonString)
             .medSoknadId(outgoing.soknadId)
-            .medLegeerklæringUrls(outgoing.vedlegg)
             .somOutgoing()
 
         JSONAssert.assertEquals(outgoingFromIncoming.jsonObject.toString(), outgoing.jsonObject.toString(), true)
@@ -293,11 +283,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                 "fødselsnummer": "$fodselsnummerSoker",
                 "aktørId": "123456"
             },
-            vedlegg: [{
-                "content": "${Base64.encodeBase64String("iPhone_6.jpg".fromResources().readBytes())}",
-                "contentType": "image/jpeg",
-                "title": "Et fint bilde"
-            }],
             "hvilke_som_helst_andre_atributter": {
                 "enabled": true,
                 "norsk": "Sære Åreknuter"
@@ -307,6 +292,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
     private fun hentSoknadSendtTilProsessering(soknadId: String?) : JSONObject {
         assertNotNull(soknadId)
-        return kafkaTestConsumer.hentSoknad(soknadId, topic = Topics.SELVSTENDIG_NÆRINGSDRIVENDE_SØKNAD_MOTTATT).data
+        return kafkaTestConsumer.hentSoknad(soknadId, topic = Topics.ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT).data
     }
 }

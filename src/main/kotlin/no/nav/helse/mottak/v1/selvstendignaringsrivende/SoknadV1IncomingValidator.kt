@@ -1,5 +1,6 @@
+package no.nav.helse.mottak.v1.selvstendignaringsrivende
+
 import no.nav.helse.dusseldorf.ktor.core.*
-import no.nav.helse.mottak.v1.SoknadV1Incoming
 
 internal fun SoknadV1Incoming.validate() {
     val violations = mutableSetOf<Violation>()

@@ -1,4 +1,4 @@
-package no.nav.helse.mottak.v1
+package no.nav.helse.mottak.v1.selvstendignaringsrivende
 
 import no.nav.helse.CorrelationId
 import no.nav.helse.Metadata

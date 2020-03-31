@@ -1,21 +1,13 @@
-package no.nav.helse.mottak.v1
+package no.nav.helse.mottak.v1.selvstendignaringsrivende
 
 import no.nav.helse.SoknadId
 import no.nav.helse.AktoerId
+import no.nav.helse.mottak.v1.JsonKeys
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import java.net.URI
 
-private object JsonKeys {
-    internal const val vedlegg = "vedlegg"
-    internal const val søker = "søker"
-    internal const val aktørId = "aktørId"
-    internal const val søknadId = "søknadId"
-    internal const val fødselsnummer = "fødselsnummer"
-    internal const val content = "content"
-    internal const val contentType = "contentType"
-    internal const val title = "title"
-}
+
 
 internal class SoknadV1Incoming(json: String) {
     private val jsonObject = JSONObject(json)
@@ -25,7 +17,9 @@ internal class SoknadV1Incoming(json: String) {
         JsonKeys.fødselsnummer
     )
 
-    private fun hentVedlegg(): List<Vedlegg> = vedleggsFilerTilJson(JsonKeys.vedlegg).toList()
+    private fun hentVedlegg(): List<Vedlegg> = vedleggsFilerTilJson(
+        JsonKeys.vedlegg
+    ).toList()
 
     private fun vedleggsFilerTilJson(jsonKey: String): MutableList<Vedlegg> {
         val vedleggsFiler: MutableList<Vedlegg> = mutableListOf()
@@ -47,7 +41,9 @@ internal class SoknadV1Incoming(json: String) {
         jsonObject.remove(JsonKeys.vedlegg)
     }
 
-    internal val søkerAktørId = AktoerId(jsonObject.getJSONObject(JsonKeys.søker).getString(JsonKeys.aktørId))
+    internal val søkerAktørId = AktoerId(jsonObject.getJSONObject(JsonKeys.søker).getString(
+        JsonKeys.aktørId
+    ))
 
     internal fun medLegeerklæringUrls(vedleggUrls: List<URI>): SoknadV1Incoming {
         jsonObject.put(JsonKeys.vedlegg, vedleggUrls)
@@ -59,7 +55,8 @@ internal class SoknadV1Incoming(json: String) {
         return this
     }
 
-    internal fun somOutgoing() = SoknadV1Outgoing(jsonObject)
+    internal fun somOutgoing() =
+        SoknadV1Outgoing(jsonObject)
 
 }
 

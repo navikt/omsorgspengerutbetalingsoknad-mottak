@@ -1,4 +1,4 @@
-package no.nav.helse.mottak.v1
+package no.nav.helse.mottak.v1.selvstendignaringsrivende
 
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
@@ -27,7 +27,7 @@ internal class SoknadV1KafkaProducer(
     private companion object {
         private val NAME = "SoknadV1Producer"
         private val TOPIC_USE = TopicUse(
-            name = Topics.MOTTATT,
+            name = Topics.SELVSTENDIG_NÆRINGSDRIVENDE_SØKNAD_MOTTATT,
             valueSerializer = SoknadV1OutgoingSerialier()
         )
         private val TOPIC_USE_DITT_NAV_MELDING = TopicUse(

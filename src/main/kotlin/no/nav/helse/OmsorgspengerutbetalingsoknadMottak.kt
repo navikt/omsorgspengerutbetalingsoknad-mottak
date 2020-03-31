@@ -30,9 +30,12 @@ import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.ktor.metrics.MetricsRoute
 import no.nav.helse.dusseldorf.ktor.metrics.init
 import no.nav.helse.mottak.v1.DittNavV1Service
-import no.nav.helse.mottak.v1.SoknadV1Api
-import no.nav.helse.mottak.v1.SoknadV1KafkaProducer
-import no.nav.helse.mottak.v1.SoknadV1MottakService
+import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1Api
+import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1KafkaProducer
+import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1MottakService
+import no.nav.helse.mottak.v1.arbeidstaker.ArbeidstakerutbetalingSoknadKafkaProducer
+import no.nav.helse.mottak.v1.arbeidstaker.ArbeidstakerutbetalingSoknadMottakService
+import no.nav.helse.mottak.v1.arbeidstaker.ArbeidstakerutbetalingsøknadApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -91,13 +94,19 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
         mdc(soknadIdKey) { it.setSoknadItAsAttributeAndGet() }
     }
 
-    val soknadV1KafkaProducer = SoknadV1KafkaProducer(
+    val soknadV1KafkaProducer =
+        SoknadV1KafkaProducer(
+            kafkaConfig = configuration.getKafkaConfig()
+        )
+
+    val arbeidstakerutbetalingSoknadV1KafkaProducer = ArbeidstakerutbetalingSoknadKafkaProducer(
         kafkaConfig = configuration.getKafkaConfig()
     )
 
     environment.monitor.subscribe(ApplicationStopping) {
         logger.info("Stopper Kafka Producer.")
         soknadV1KafkaProducer.stop()
+        arbeidstakerutbetalingSoknadV1KafkaProducer.stop()
         logger.info("Kafka Producer Stoppet.")
     }
 
@@ -112,6 +121,7 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
             healthService = HealthService(
                 healthChecks = setOf(
                     soknadV1KafkaProducer,
+                    arbeidstakerutbetalingSoknadV1KafkaProducer,
                     dokumentGateway
                 )
             )
@@ -127,6 +137,12 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
                     ),
                     dittNavV1Service = DittNavV1Service(
                         soknadV1KafkaProducer = soknadV1KafkaProducer
+                    )
+                )
+
+                ArbeidstakerutbetalingsøknadApi(
+                    soknadV1MottakService = ArbeidstakerutbetalingSoknadMottakService(
+                        soknadV1KafkaProducer = arbeidstakerutbetalingSoknadV1KafkaProducer
                     )
                 )
             }
