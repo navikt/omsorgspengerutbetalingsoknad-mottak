@@ -21,6 +21,10 @@ internal class SoknadV1Incoming(json: String) {
     private val jsonObject = JSONObject(json)
     internal val vedlegg: List<Vedlegg>
 
+    internal val sokerFodselsNummer = jsonObject.getJSONObject(JsonKeys.søker).getString(
+        JsonKeys.fødselsnummer
+    )
+
     private fun hentVedlegg(): List<Vedlegg> = vedleggsFilerTilJson(JsonKeys.vedlegg).toList()
 
     private fun vedleggsFilerTilJson(jsonKey: String): MutableList<Vedlegg> {

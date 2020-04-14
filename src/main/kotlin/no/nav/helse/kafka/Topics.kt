@@ -17,4 +17,5 @@ internal data class TopicUse<V>(
 
 internal object Topics {
     internal const val MOTTATT = "privat-omsorgspengerutbetalingsoknad-mottatt"
+    internal const val DITT_NAV_BESKJED = "aapen-brukernotifikasjon-nyBeskjed-v1"
 }

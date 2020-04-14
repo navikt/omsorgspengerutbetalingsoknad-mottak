@@ -219,7 +219,8 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         val soknad = """
         {
             "søker": {
-                "aktørId": "ABC"
+                "aktørId": "ABC",
+                "fødselsnummer": "02119970078"
             },
             vedlegg: []
         }
