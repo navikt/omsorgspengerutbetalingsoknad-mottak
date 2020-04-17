@@ -39,6 +39,6 @@ internal fun sendBeskjedTilDittNav(
             soknadId = soknadId
         )
     } catch (e: Exception) {
-        logger.error("Feilet under sending av beskjed til Ditt NAV: $e")
+        logger.error("Feilet ved sending av beskjed til Ditt NAV: $e")
     }
 }
