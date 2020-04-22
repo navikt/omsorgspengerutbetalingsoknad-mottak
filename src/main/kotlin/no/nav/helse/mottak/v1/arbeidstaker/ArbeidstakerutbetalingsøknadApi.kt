@@ -7,6 +7,8 @@ import io.ktor.request.receiveStream
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import no.nav.helse.Metadata
+import no.nav.helse.SoknadId
 import no.nav.helse.getSoknadId
 import no.nav.helse.mottak.v1.selvstendignaringsrivende.metadata
 
@@ -14,9 +16,9 @@ internal fun Route.ArbeidstakerutbetalingsøknadApi(
     soknadV1MottakService: ArbeidstakerutbetalingSoknadMottakService
 ) {
     post("v1/arbeidstaker/soknad") {
-        val soknadId = call.getSoknadId()
-        val metadata = call.metadata()
-        val soknad = call.arbeidstakerutbetalingsøknad()
+        val soknadId: SoknadId = call.getSoknadId()
+        val metadata: Metadata = call.metadata()
+        val soknad: ArbeidstakerutbetalingsSoknadIncoming = call.arbeidstakerutbetalingsøknad()
         soknadV1MottakService.leggTilProsessering(
             soknadId = soknadId,
             metadata = metadata,

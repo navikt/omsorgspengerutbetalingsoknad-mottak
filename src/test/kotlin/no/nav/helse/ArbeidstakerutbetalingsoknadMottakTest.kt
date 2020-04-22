@@ -56,19 +56,27 @@ class ArbeidstakerutbetalingsoknadMottakTest {
         private val kafkaEnvironment = KafkaWrapper.bootstrap()
         private val kafkaTestConsumer = kafkaEnvironment.testConsumer()
 
-        private val authorizedAccessToken = Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak")
-        private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(clientId = "ikke-authorized-client", audience = "omsorgspengerutbetalingsoknad-mottak")
+        private val authorizedAccessToken = Azure.V1_0.generateJwt(
+            clientId = "omsorgspengerutbetaling-api",
+            audience = "omsorgspengerutbetalingsoknad-mottak"
+        )
+        private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(
+            clientId = "ikke-authorized-client",
+            audience = "omsorgspengerutbetalingsoknad-mottak"
+        )
 
         private var engine = newEngine(kafkaEnvironment)
 
-        private fun getConfig(kafkaEnvironment: KafkaEnvironment) : ApplicationConfig {
+        private fun getConfig(kafkaEnvironment: KafkaEnvironment): ApplicationConfig {
             val fileConfig = ConfigFactory.load()
-            val testConfig = ConfigFactory.parseMap(TestConfiguration.asMap(
-                wireMockServer = wireMockServer,
-                kafkaEnvironment = kafkaEnvironment,
-                omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak",
-                azureAuthorizedClients = setOf("omsorgspengerutbetaling-api")
-            ))
+            val testConfig = ConfigFactory.parseMap(
+                TestConfiguration.asMap(
+                    wireMockServer = wireMockServer,
+                    kafkaEnvironment = kafkaEnvironment,
+                    omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak",
+                    azureAuthorizedClients = setOf("omsorgspengerutbetaling-api")
+                )
+            )
             val mergedConfig = testConfig.withFallback(fileConfig)
             return HoconApplicationConfig(mergedConfig)
         }
@@ -158,7 +166,7 @@ class ArbeidstakerutbetalingsoknadMottakTest {
             kafkaEngine = engine
         )
 
-        val sendtTilProsessering  = hentSoknadSendtTilProsessering(soknadId)
+        val sendtTilProsessering = hentSoknadSendtTilProsessering(soknadId)
         verifiserSoknadLagtTilProsessering(
             incomingJsonString = soknad,
             outgoingJsonObject = sendtTilProsessering
@@ -269,20 +277,23 @@ class ArbeidstakerutbetalingsoknadMottakTest {
 
         val outgoingFromIncoming = ArbeidstakerutbetalingsSoknadIncoming(incomingJsonString)
             .medSoknadId(outgoing.soknadId)
+            .medVedleggTitler()
+            .medVedleggUrls(emptyList())
             .somOutgoing()
 
         JSONAssert.assertEquals(outgoingFromIncoming.jsonObject.toString(), outgoing.jsonObject.toString(), true)
     }
 
     private fun gyldigSoknad(
-        fodselsnummerSoker : String
-    ) : String =
+        fodselsnummerSoker: String
+    ): String =
         """
         {
             "søker": {
                 "fødselsnummer": "$fodselsnummerSoker",
                 "aktørId": "123456"
             },
+            "vedlegg": [],
             "hvilke_som_helst_andre_atributter": {
                 "enabled": true,
                 "norsk": "Sære Åreknuter"
@@ -290,7 +301,7 @@ class ArbeidstakerutbetalingsoknadMottakTest {
         }
         """.trimIndent()
 
-    private fun hentSoknadSendtTilProsessering(soknadId: String?) : JSONObject {
+    private fun hentSoknadSendtTilProsessering(soknadId: String?): JSONObject {
         assertNotNull(soknadId)
         return kafkaTestConsumer.hentSoknad(soknadId, topic = Topics.ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT).data
     }

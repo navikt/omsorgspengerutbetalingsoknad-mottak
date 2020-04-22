@@ -142,6 +142,7 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
 
                 ArbeidstakerutbetalingsøknadApi(
                     soknadV1MottakService = ArbeidstakerutbetalingSoknadMottakService(
+                        dokumentGateway = dokumentGateway,
                         soknadV1KafkaProducer = arbeidstakerutbetalingSoknadV1KafkaProducer
                     )
                 )
