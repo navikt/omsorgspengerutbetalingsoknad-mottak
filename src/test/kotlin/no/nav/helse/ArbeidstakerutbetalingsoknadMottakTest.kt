@@ -278,7 +278,7 @@ class ArbeidstakerutbetalingsoknadMottakTest {
         val outgoingFromIncoming = ArbeidstakerutbetalingsSoknadIncoming(incomingJsonString)
             .medSoknadId(outgoing.soknadId)
             .medVedleggTitler()
-            .medVedleggUrls(emptyList())
+            .medVedleggUrls(outgoing.vedleggUrls)
             .somOutgoing()
 
         JSONAssert.assertEquals(outgoingFromIncoming.jsonObject.toString(), outgoing.jsonObject.toString(), true)
