@@ -112,16 +112,7 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
             healthService = HealthService(
                 healthChecks = setOf(
                     soknadV1KafkaProducer,
-                    dokumentGateway,
-                    HttpRequestHealthCheck(
-                        issuers.healthCheckMap(
-                            mutableMapOf(
-                                Url.healthURL(configuration.getK9DokumentBaseUrl()) to HttpRequestHealthConfig(
-                                    expectedStatus = HttpStatusCode.OK
-                                )
-                            )
-                        )
-                    )
+                    dokumentGateway
                 )
             )
         )
@@ -142,18 +133,6 @@ fun Application.omsorgspengerutbetalingsoknadMottak() {
         }
     }
 }
-
-private fun Map<Issuer, Set<ClaimRule>>.healthCheckMap(
-    initial: MutableMap<URI, HttpRequestHealthConfig> = mutableMapOf()
-): Map<URI, HttpRequestHealthConfig> {
-    forEach { issuer, _ ->
-        initial[issuer.jwksUri()] =
-            HttpRequestHealthConfig(expectedStatus = HttpStatusCode.OK, includeExpectedStatusEntity = false)
-    }
-    return initial.toMap()
-}
-
-private fun Url.Companion.healthURL(baseUrl: URI) = Url.buildURL(baseUrl = baseUrl, pathParts = listOf("health"))
 
 private fun ApplicationCall.setSoknadItAsAttributeAndGet(): String {
     val soknadId = UUID.randomUUID().toString()
