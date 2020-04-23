@@ -14,6 +14,8 @@ import io.ktor.routing.post
 import no.nav.helse.Metadata
 import no.nav.helse.SoknadId
 import no.nav.helse.getSoknadId
+import no.nav.helse.mottak.v1.DittNavV1Service
+import no.nav.helse.mottak.v1.sendBeskjedTilDittNav
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

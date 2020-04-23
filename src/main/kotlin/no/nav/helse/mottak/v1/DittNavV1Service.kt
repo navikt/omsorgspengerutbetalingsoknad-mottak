@@ -1,6 +1,8 @@
 package no.nav.helse.mottak.v1
 
 import no.nav.helse.SoknadId
+import no.nav.helse.mottak.v1.selvstendignaringsrivende.ProduceBeskjedDto
+import no.nav.helse.mottak.v1.selvstendignaringsrivende.SoknadV1KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
