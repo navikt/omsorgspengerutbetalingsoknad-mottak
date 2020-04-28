@@ -17,6 +17,6 @@ internal data class TopicUse<V>(
 
 internal object Topics {
     internal const val SELVSTENDIG_NÆRINGSDRIVENDE_SØKNAD_MOTTATT = "privat-omsorgspengerutbetalingsoknad-mottatt"
-    internal const val ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT = "privat-oms-utbetalingsoknad-arbeidstaker-mottatt"
+    internal const val ARBEIDSTAKER_UTBETALING_SØKNAD_MOTTATT = "privat-omp-utbetalingsoknad-arbeidstaker-mottatt"
     internal const val DITT_NAV_BESKJED = "aapen-brukernotifikasjon-nyBeskjed-v1"
 }
