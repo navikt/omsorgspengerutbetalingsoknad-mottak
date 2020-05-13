@@ -35,7 +35,7 @@ internal fun Route.SoknadV1Api(
         )
         sendBeskjedTilDittNav(
             dittNavV1Service = dittNavV1Service,
-            dittNavTekst = "Søknad om utbetaling av omsorgsdager er mottatt.",
+            dittNavTekst = "Søknad om utbetaling av omsorgspenger er mottatt.",
             dittNavLink = "",
             sokerFodselsNummer = soknad.sokerFodselsNummer,
             soknadId = soknadId
