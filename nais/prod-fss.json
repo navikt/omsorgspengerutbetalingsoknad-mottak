@@ -8,9 +8,9 @@
   "ingresses": [
     "https://omsorgspengerutbetalingsoknad-mottak.nais.preprod.local"
   ],
-  "vaultKvPath": "/kv/preprod/fss/omsorgspengerutbetalingsoknad-mottak/default",
-  "azureadKvPath": "/azuread/data/dev/creds/omsorgspengerutbetalingsoknad-mottak",
-  "serviceuserKvPath": "/serviceuser/data/dev/srvomsut-mottakk",
+  "vaultKvPath": "/kv/prod/fss/omsorgspengerutbetalingsoknad-mottak/default",
+  "azureadKvPath": "/azuread/data/prod/creds/omsorgspengerutbetalingsoknad-mottak",
+  "serviceuserKvPath": "/serviceuser/data/prod/srvomsut-mottakk",
   "env": {
     "K9_DOKUMENT_BASE_URL": "https://k9-dokument.nais.adeo.no",
     "AZURE_AUTHORIZED_CLIENTS": "023cd323-face-4e7e-9d4b-ebbfdb4ad47b",
