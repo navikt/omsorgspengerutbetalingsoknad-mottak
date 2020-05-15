@@ -1,6 +1,6 @@
 # Omsorgspengerutbetalingsoknad Mottak
 ![CI / CD](https://github.com/navikt/omsorgspengerutbetalingsoknad-mottak/workflows/CI%20/%20CD/badge.svg)
-![NAIS Alerts](https://github.com/navikt/k9-ettersending-mottak/workflows/Alerts/badge.svg)
+![NAIS Alerts](https://github.com/navikt/omsorgspengerutbetalingsoknad-mottak/workflows/Alerts/badge.svg)
 
 Tjeneste som tar imot søknader om omsorgspengerutbetaling og legger de til til prosessering.
 Mottar søknad som REST API-kall. Legges videre på en Kafka Topic som tjenesten [omsorgspengerutbetalingsoknad-prosessering](https://github.com/navikt/omsorgspengerutbetalingsoknad-prosessering) prosesserer.
