@@ -27,9 +27,9 @@ internal fun Route.SoknadV1Api(
     dittNavV1Service: DittNavV1Service
 ) {
     post("v1/soknad") {
-        val soknadId: SoknadId = call.getSoknadId()
         val metadata: Metadata = call.metadata()
         val soknad: SoknadV1Incoming = withContext(Dispatchers.IO) { call.soknad() }
+        val soknadId: SoknadId = soknad.søknadId ?: call.getSoknadId()
         soknadV1MottakService.leggTilProsessering(
             soknadId = soknadId,
             metadata = metadata,
