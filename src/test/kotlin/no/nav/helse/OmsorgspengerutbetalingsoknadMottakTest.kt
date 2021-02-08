@@ -3,23 +3,19 @@ package no.nav.helse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.typesafe.config.ConfigFactory
-import io.ktor.config.ApplicationConfig
-import io.ktor.config.HoconApplicationConfig
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.engine.stop
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.createTestEnvironment
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.config.*
+import io.ktor.http.*
+import io.ktor.server.engine.*
+import io.ktor.server.testing.*
+import io.ktor.util.*
 import no.nav.common.KafkaEnvironment
 import no.nav.helse.dusseldorf.ktor.core.fromResources
 import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
-import no.nav.helse.mottak.v1.*
+import no.nav.helse.mottak.v1.JsonKeys
+import no.nav.helse.mottak.v1.SoknadV1Incoming
+import no.nav.helse.mottak.v1.SoknadV1Outgoing
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import org.junit.AfterClass
@@ -27,10 +23,12 @@ import org.junit.BeforeClass
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @KtorExperimentalAPI
 class OmsorgspengerutbetalingsoknadMottakTest {
@@ -60,19 +58,27 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         private val kafkaTestConsumer = kafkaEnvironment.testConsumer()
         private val objectMapper = jacksonObjectMapper().dusseldorfConfigured()
 
-        private val authorizedAccessToken = Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak")
-        private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(clientId = "ikke-authorized-client", audience = "omsorgspengerutbetalingsoknad-mottak")
+        private val authorizedAccessToken = Azure.V1_0.generateJwt(
+            clientId = "omsorgspengerutbetaling-api",
+            audience = "omsorgspengerutbetalingsoknad-mottak"
+        )
+        private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(
+            clientId = "ikke-authorized-client",
+            audience = "omsorgspengerutbetalingsoknad-mottak"
+        )
 
         private var engine = newEngine(kafkaEnvironment)
 
-        private fun getConfig(kafkaEnvironment: KafkaEnvironment) : ApplicationConfig {
+        private fun getConfig(kafkaEnvironment: KafkaEnvironment): ApplicationConfig {
             val fileConfig = ConfigFactory.load()
-            val testConfig = ConfigFactory.parseMap(TestConfiguration.asMap(
-                wireMockServer = wireMockServer,
-                kafkaEnvironment = kafkaEnvironment,
-                omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak",
-                azureAuthorizedClients = setOf("omsorgspengerutbetaling-api")
-            ))
+            val testConfig = ConfigFactory.parseMap(
+                TestConfiguration.asMap(
+                    wireMockServer = wireMockServer,
+                    kafkaEnvironment = kafkaEnvironment,
+                    omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak",
+                    azureAuthorizedClients = setOf("omsorgspengerutbetaling-api")
+                )
+            )
             val mergedConfig = testConfig.withFallback(fileConfig)
             return HoconApplicationConfig(mergedConfig)
         }
@@ -120,8 +126,18 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
     @Test
     fun `Gyldig søknad blir lagt til prosessering`() {
-        gyldigSoknadBlirLagtTilProsessering(Azure.V1_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak"))
-        gyldigSoknadBlirLagtTilProsessering(Azure.V2_0.generateJwt(clientId = "omsorgspengerutbetaling-api", audience = "omsorgspengerutbetalingsoknad-mottak"))
+        gyldigSoknadBlirLagtTilProsessering(
+            Azure.V1_0.generateJwt(
+                clientId = "omsorgspengerutbetaling-api",
+                audience = "omsorgspengerutbetalingsoknad-mottak"
+            )
+        )
+        gyldigSoknadBlirLagtTilProsessering(
+            Azure.V2_0.generateJwt(
+                clientId = "omsorgspengerutbetaling-api",
+                audience = "omsorgspengerutbetalingsoknad-mottak"
+            )
+        )
     }
 
     private fun gyldigSoknadBlirLagtTilProsessering(accessToken: String) {
@@ -155,11 +171,43 @@ class OmsorgspengerutbetalingsoknadMottakTest {
             expectedResponse = null
         )
 
-        val sendtTilProsessering  = hentSoknadSendtTilProsessering(soknadId)
+        val sendtTilProsessering = hentSoknadSendtTilProsessering(soknadId)
         verifiserSoknadLagtTilProsessering(
             incomingJsonString = soknad,
             outgoingJsonObject = sendtTilProsessering
         )
+    }
+
+    @Test
+    fun `Gyldig søknad med søknadId på request body`() {
+        val forventetSøknadId = UUID.randomUUID().toString()
+        val soknad = gyldigSoknad(
+            fodselsnummerSoker = dNummerA,
+            søknadId = forventetSøknadId
+        )
+
+        val soknadId = requestAndAssert(
+            soknad = soknad,
+            expectedCode = HttpStatusCode.Accepted,
+            expectedResponse = """{"id":"$forventetSøknadId"}"""
+        )
+    }
+
+    @Test
+    fun `Gyldig søknad uten søknadId på request body`() {
+        val soknad = gyldigSoknad(
+            fodselsnummerSoker = dNummerA,
+            søknadId = null
+        )
+
+        val soknadId = requestAndAssert(
+            soknad = soknad,
+            expectedCode = HttpStatusCode.Accepted,
+            expectedResponse = null
+        )
+
+        assertNotNull(soknadId)
+        assertTrue(soknadId.isNotBlank())
     }
 
     @Test
@@ -262,12 +310,14 @@ class OmsorgspengerutbetalingsoknadMottakTest {
     }
 
 
-    private fun requestAndAssert(soknad : String,
-                                 expectedResponse : String?,
-                                 expectedCode : HttpStatusCode,
-                                 leggTilCorrelationId : Boolean = true,
-                                 leggTilAuthorization : Boolean = true,
-                                 accessToken : String = authorizedAccessToken) : String? {
+    private fun requestAndAssert(
+        soknad: String,
+        expectedResponse: String?,
+        expectedCode: HttpStatusCode,
+        leggTilCorrelationId: Boolean = true,
+        leggTilAuthorization: Boolean = true,
+        accessToken: String = authorizedAccessToken
+    ): String? {
         with(engine) {
             handleRequest(HttpMethod.Post, "/v1/soknad") {
                 if (leggTilAuthorization) {
@@ -278,7 +328,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                 }
                 addHeader(HttpHeaders.ContentType, "application/json")
                 val requestEntity = objectMapper.writeValueAsString(soknad)
-                logger.info("Request Entity = $requestEntity")
+                //logger.info("Request Entity = $requestEntity")
                 setBody(soknad)
             }.apply {
                 logger.info("Response Entity = ${response.content}")
@@ -303,10 +353,17 @@ class OmsorgspengerutbetalingsoknadMottakTest {
 
 
     private fun gyldigSoknad(
-        fodselsnummerSoker : String
-    ) : String =
+        fodselsnummerSoker: String,
+        søknadId: String? = null
+    ): String =
         """
         {
+            "${JsonKeys.søknadId}": ${
+            when (søknadId) {
+                null -> null
+                else -> "$søknadId"
+            }
+        }, 
             "søker": {
                 "fødselsnummer": "$fodselsnummerSoker",
                 "aktørId": "123456"
@@ -323,7 +380,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         }
         """.trimIndent()
 
-    private fun hentSoknadSendtTilProsessering(soknadId: String?) : JSONObject {
+    private fun hentSoknadSendtTilProsessering(soknadId: String?): JSONObject {
         assertNotNull(soknadId)
         return kafkaTestConsumer.hentSoknad(soknadId).data
     }
