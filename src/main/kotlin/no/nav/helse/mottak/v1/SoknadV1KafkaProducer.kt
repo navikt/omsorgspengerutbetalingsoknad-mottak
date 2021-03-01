@@ -14,9 +14,6 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.Serializer
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
 
 internal class SoknadV1KafkaProducer(
     val kafkaConfig: KafkaConfig
