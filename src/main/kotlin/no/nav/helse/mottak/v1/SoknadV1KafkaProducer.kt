@@ -1,9 +1,6 @@
 package no.nav.helse.mottak.v1
 
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.helse.Metadata
-import no.nav.helse.SoknadId
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.Result
@@ -39,12 +36,6 @@ internal class SoknadV1KafkaProducer(
         TOPIC_USE.keySerializer(),
         TOPIC_USE.valueSerializer
     )
-
-    private val producerAvDittNavMelding = KafkaProducer<Nokkel, Beskjed>(
-        kafkaConfig
-            .producerDittNavMelding(NAME)
-    )
-
 
     internal fun produce(
         soknad: SoknadV1Outgoing,
