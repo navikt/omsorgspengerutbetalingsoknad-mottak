@@ -23,8 +23,7 @@ import validate
 private val logger: Logger = LoggerFactory.getLogger("no.nav.SoknadV1Api")
 
 internal fun Route.SoknadV1Api(
-    soknadV1MottakService: SoknadV1MottakService,
-    dittNavV1Service: DittNavV1Service
+    soknadV1MottakService: SoknadV1MottakService
 ) {
     post("v1/soknad") {
         val metadata: Metadata = call.metadata()
@@ -35,13 +34,7 @@ internal fun Route.SoknadV1Api(
             metadata = metadata,
             soknad = soknad
         )
-        sendBeskjedTilDittNav(
-            dittNavV1Service = dittNavV1Service,
-            dittNavTekst = "Søknad om utbetaling av omsorgspenger er mottatt.",
-            dittNavLink = "",
-            sokerFodselsNummer = soknad.sokerFodselsNummer,
-            soknadId = soknadId
-        )
+
         call.respond(HttpStatusCode.Accepted, mapOf("id" to soknadId.id))
     }
 }

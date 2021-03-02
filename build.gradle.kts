@@ -5,7 +5,6 @@ val dusseldorfKtorVersion = "1.5.0.8b77f1d"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kafkaEmbeddedEnvVersion = "2.4.0"
 val kafkaVersion = "2.4.0" // Alligned med version fra kafka-embedded-env
-val brukernotifikasjonSchemaVersion = "1.2020.02.07-13.16-fa9d319688b1"
 val confluentVersion = "5.2.0"
 
 val mainClass = "no.nav.helse.OmsorgspengerutbetalingsoknadMottakKt"
@@ -50,8 +49,6 @@ dependencies {
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
-    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     // Test
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
