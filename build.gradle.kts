@@ -11,7 +11,7 @@ val mainClass = "no.nav.helse.OmsorgspengerutbetalingsoknadMottakKt"
 
 plugins {
     kotlin("jvm") version "1.4.21"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 buildscript {
