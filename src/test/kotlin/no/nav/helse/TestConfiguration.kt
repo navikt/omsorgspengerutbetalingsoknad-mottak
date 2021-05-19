@@ -14,7 +14,6 @@ object TestConfiguration {
         aktoerRegisterBaseUrl : String? = wireMockServer?.getAktoerRegisterBaseUrl(),
         k9DokumentBaseUrl : String? = wireMockServer?.getK9DokumentBaseUrl(),
         omsorgspengerutbetalingsoknadMottakAzureClientId: String = "omsorgspengerutbetalingsoknad-mottak",
-        azureAuthorizedClients: Set<String> = setOf("azure-client-1", "azure-client-2","azure-client-3")
     ) : Map<String, String>{
         val map = mutableMapOf(
             Pair("ktor.deployment.port","$port"),
@@ -44,14 +43,14 @@ object TestConfiguration {
             map["nav.auth.issuers.0.discovery_endpoint"] = wireMockServer.getAzureV1WellKnownUrl()
             map["nav.auth.issuers.0.audience"] = omsorgspengerutbetalingsoknadMottakAzureClientId
             map["nav.auth.issuers.0.azure.require_certificate_client_authentication"] = "true"
-            map["nav.auth.issuers.0.azure.authorized_clients"] = azureAuthorizedClients.joinToString(",")
+            map["nav.auth.issuers.0.azure.required_roles"] = "access_as_application"
 
             map["nav.auth.issuers.1.type"] = "azure"
             map["nav.auth.issuers.1.alias"] = "azure-v2"
             map["nav.auth.issuers.1.discovery_endpoint"] = wireMockServer.getAzureV2WellKnownUrl()
             map["nav.auth.issuers.1.audience"] = omsorgspengerutbetalingsoknadMottakAzureClientId
             map["nav.auth.issuers.1.azure.require_certificate_client_authentication"] = "true"
-            map["nav.auth.issuers.1.azure.authorized_clients"] = azureAuthorizedClients.joinToString(",")
+            map["nav.auth.issuers.1.azure.required_roles"] = "access_as_application"
         }
 
         return map.toMap()
