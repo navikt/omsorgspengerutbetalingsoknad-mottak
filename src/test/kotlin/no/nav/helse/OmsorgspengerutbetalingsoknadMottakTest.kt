@@ -64,7 +64,8 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         )
         private val unAauthorizedAccessToken = Azure.V2_0.generateJwt(
             clientId = "ikke-authorized-client",
-            audience = "omsorgspengerutbetalingsoknad-mottak"
+            audience = "omsorgspengerutbetalingsoknad-mottak",
+            accessAsApplication = false
         )
 
         private var engine = newEngine(kafkaEnvironment)
@@ -75,8 +76,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
                 TestConfiguration.asMap(
                     wireMockServer = wireMockServer,
                     kafkaEnvironment = kafkaEnvironment,
-                    omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak",
-                    azureAuthorizedClients = setOf("omsorgspengerutbetaling-api")
+                    omsorgspengerutbetalingsoknadMottakAzureClientId = "omsorgspengerutbetalingsoknad-mottak"
                 )
             )
             val mergedConfig = testConfig.withFallback(fileConfig)
