@@ -1,15 +1,17 @@
 {
   "app": "omsorgspengerutbetalingsoknad-mottak",
   "cluster": "dev-fss",
-  "namespace": "default",
+  "namespace": "dusseldorf",
   "team": "dusseldorf",
+  "tenant" : "trygdeetaten.no",
+  "omsorgspengerutbetaling-api-cluster" : "dev-gcp",
   "minReplicas": "1",
   "maxReplicas": "2",
   "ingresses": [
     "https://omsorgspengerutbetalingsoknad-mottak.nais.preprod.local",
     "https://omsorgspengerutbetalingsoknad-mottak.dev-fss-pub.nais.io"
   ],
-  "vaultKvPath": "/kv/preprod/fss/omsorgspengerutbetalingsoknad-mottak/default",
+  "vaultKvPath": "/kv/preprod/fss/omsorgspengerutbetalingsoknad-mottak/dusseldorf",
   "azureadKvPath": "/azuread/data/dev/creds/omsorgspengerutbetalingsoknad-mottak",
   "serviceuserKvPath": "/serviceuser/data/dev/srvomsut-mottak",
   "env": {
