@@ -7,6 +7,16 @@ metadata:
     team: {{team}}
 spec:
   image: {{ image }}
+  azure:
+    application:
+      enabled: true
+      tenant: {{tenant}}
+  accessPolicy:
+    inbound:
+      rules:
+        - application: omsorgspengerutbetaling-api
+          namespace: dusseldorf
+          cluster: {{omsorgspengerutbetaling-api-cluster}}
   port: 8080
   liveness:
     path: isalive
