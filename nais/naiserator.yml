@@ -46,15 +46,8 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  vault:
-    enabled: true
-    paths:
-      - mountPath: /var/run/secrets/nais.io/vault
-        kvPath: {{vaultKvPath}}
-      - mountPath: /var/run/secrets/nais.io/azuread
-        kvPath: {{azureadKvPath}}
-      - mountPath: /var/run/secrets/nais.io/serviceuser
-        kvPath: {{serviceuserKvPath}}
+  envFrom:
+    - secret: {{app}}
   webproxy: true
   env:
   {{#each env}}
