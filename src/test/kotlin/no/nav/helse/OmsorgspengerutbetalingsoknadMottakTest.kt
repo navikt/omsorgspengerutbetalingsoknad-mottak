@@ -7,7 +7,6 @@ import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.testing.*
-import io.ktor.util.*
 import no.nav.common.KafkaEnvironment
 import no.nav.helse.dusseldorf.ktor.core.fromResources
 import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
@@ -19,7 +18,6 @@ import no.nav.helse.mottak.v1.SoknadV1Outgoing
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import org.junit.AfterClass
-import org.junit.BeforeClass
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,10 +28,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@KtorExperimentalAPI
 class OmsorgspengerutbetalingsoknadMottakTest {
 
-    @KtorExperimentalAPI
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(OmsorgspengerutbetalingsoknadMottakTest::class.java)
 
@@ -68,7 +64,7 @@ class OmsorgspengerutbetalingsoknadMottakTest {
             accessAsApplication = false
         )
 
-        private var engine = newEngine(kafkaEnvironment)
+        private var engine = newEngine(kafkaEnvironment).apply { start(true) }
 
         private fun getConfig(kafkaEnvironment: KafkaEnvironment): ApplicationConfig {
             val fileConfig = ConfigFactory.load()
@@ -86,14 +82,6 @@ class OmsorgspengerutbetalingsoknadMottakTest {
         private fun newEngine(kafkaEnvironment: KafkaEnvironment) = TestApplicationEngine(createTestEnvironment {
             config = getConfig(kafkaEnvironment)
         })
-
-        @BeforeClass
-        @JvmStatic
-        fun buildUp() {
-            logger.info("Building up")
-            engine.start(wait = true)
-            logger.info("Buildup complete")
-        }
 
         @AfterClass
         @JvmStatic
