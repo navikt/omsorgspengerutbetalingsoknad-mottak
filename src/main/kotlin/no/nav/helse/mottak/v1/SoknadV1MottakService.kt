@@ -1,9 +1,9 @@
 package no.nav.helse.mottak.v1
 
+import no.nav.helse.AktoerId
 import no.nav.helse.CorrelationId
 import no.nav.helse.Metadata
 import no.nav.helse.SoknadId
-import no.nav.helse.AktoerId
 import no.nav.helse.dokument.Dokument
 import no.nav.helse.dokument.DokumentGateway
 import org.slf4j.LoggerFactory
@@ -38,9 +38,9 @@ internal class SoknadV1MottakService(
             .somOutgoing()
 
         logger.info("Legger på kø")
-        soknadV1KafkaProducer.produce(
+        soknadV1KafkaProducer.produserKafkaMelding(
             metadata = metadata,
-            soknad = outgoing
+            søknad = outgoing
         )
 
         return soknadId
