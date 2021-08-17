@@ -1,20 +1,15 @@
 package no.nav.helse
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
-import io.ktor.auth.Authentication
-import io.ktor.auth.authenticate
-import io.ktor.features.CallId
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
-import io.ktor.jackson.jackson
-import io.ktor.metrics.micrometer.MicrometerMetrics
-import io.ktor.routing.Routing
-import io.ktor.util.AttributeKey
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.jackson.*
+import io.ktor.metrics.micrometer.*
+import io.ktor.routing.*
+import io.ktor.util.*
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.auth.AccessTokenClientResolver
 import no.nav.helse.dokument.DokumentGateway
@@ -42,7 +37,6 @@ private val soknadIdAttributeKey = AttributeKey<String>(soknadIdKey)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-@KtorExperimentalAPI
 fun Application.omsorgspengerutbetalingsoknadMottak() {
     val appId = environment.config.id()
     logProxyProperties()
@@ -137,5 +131,5 @@ private fun ApplicationCall.setSoknadItAsAttributeAndGet(): String {
 internal fun ApplicationCall.getSoknadId() = SoknadId(attributes[soknadIdAttributeKey])
 
 internal fun k9DokumentKonfigurert() : ObjectMapper = jacksonObjectMapper().dusseldorfConfigured().apply {
-    propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
+    propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
 }

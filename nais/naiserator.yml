@@ -11,6 +11,8 @@ spec:
     application:
       enabled: true
       tenant: {{tenant}}
+  kafka:
+    pool: {{kafka-pool}}
   accessPolicy:
     inbound:
       rules:
@@ -46,8 +48,6 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  envFrom:
-    - secret: {{app}}
   webproxy: true
   env:
   {{#each env}}
